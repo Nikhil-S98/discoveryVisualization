@@ -6,15 +6,79 @@
             <link rel="stylesheet" href="./style.css">
             <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
             <title>Discovery Visualization</title>
+
+            <!--bebas neue-->
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+
+            <!--open sans-->
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+            
+            <!---exo-->
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Exo:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,629;1,629&display=swap" rel="stylesheet">
         </head>
 
         <body>
             <header>
-                <div id="title">Very Disco! The Samples of Discovery by Daft Punk</div>
+                <div id="title">VERY DISCO: THE SAMPLES OF DISCOVERY BY DAFT PUNK</div>
             </header>
-            <div id="samplesPerSong"></div>
-            <div id="songsComparison"></div>
+
+            <div class ="artistIntro">
+                <img id="artistImage" src="./assets/tokyo2.jpg">
+
+                <p id="artistIntroText">
+                    Emerging in the 1990s, Daft Punk is a legendary electronic music duo 
+                    known for their pioneering contributions to the genre. Comprising 
+                    Thomas Bangalter and Guy-Manuel de Homem-Christo, the French duo gained 
+                    worldwide acclaim for their innovative sound, blending house, disco, 
+                    funk, and pop with cutting-edge production techniques. Their music not 
+                    only pushed the boundaries of electronic music but also paid homage to 
+                    their influences, reflecting a deep respect for the sounds that
+                     shaped their artistry. Renowned for their enigmatic robot personas 
+                     and groundbreaking live performances, Daft Punk created a legacy 
+                     that forever changed the landscape of modern music. 
+                </p>
+            </div>
+
+            <div class ="albumIntro">
+                <p id="albumIntroText">
+                    Released in 2001, <em>Discovery</em> is a landmark album 
+                    that redefined electronic music. Renowned for its seamless fusion of 
+                    house, disco, funk, and pop, the album reflects the duo's deep 
+                    reverence for their musical influences. Central to 
+                    <em>Discovery</em> is its intricate use of disco-centric 
+                    samples, carefully selected from a single transformative 
+                    decade of music history, reimagined with a futuristic flair. 
+                    This page delves into the complexity of <em>Discovery</em>, 
+                    exploring its artistry and the inspirations that fueled its creation.
+                </p>
+
+                <img id="albumArt" src="./assets/discovery.png" alt="Discovery Album Cover">
+            </div>
+
+            <div class="graphContainer">
+                <div class="graph-description">
+                    <p>Amount of samples used on <em>Discovery</em>.</p>
+                </div>
+
+                <div class="graph" id="samplesPerSong"></div>
+
+            </div>
+            <div class="graphContainer">
+                <div class="graph-description">
+                    <p>The amount of songs that use samples vs the amount that don't on <em>Discovery</em>.</p>
+                </div>
+
+                <div id="songsComparison"></div>
+            </div>
+
             <div id="sampleDates"></div>
+            <div id="faceToFaceChart"></div>
             <script src="script.js"></script>
         </body>
 </html>
