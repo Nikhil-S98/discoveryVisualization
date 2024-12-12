@@ -1,3 +1,94 @@
+// ---------Songs Comparison----------
+
+// Data
+const dataSC = [
+    { category: "Songs With Samples", count: 9 },
+    { category: "Songs Without Samples", count: 5 }
+];
+
+// Dimensions
+const widthSC = 700;
+const heightSC = 700;
+const marginSC = 50;
+
+const radiusSC = Math.min(widthSC, heightSC) / 2 - marginSC;
+
+// Append SVG
+const svgSC = d3
+    .select("#songsComparison")
+    .append("svg")
+    .attr("width", widthSC)
+    .attr("height", heightSC)
+    .append("g")
+    .attr("transform", `translate(${widthSC / 2}, ${heightSC / 2})`);
+
+// Color scale
+const colorSC = d3
+    .scaleOrdinal()
+    .domain(["Songs With Samples", "Songs Without Samples"])
+    .range(["rgb(78, 0, 228)", "rgb(14, 17, 145)"]);
+
+// Create pie and arc
+const pieSC = d3.pie()
+    .value(d => d.count);
+
+const arcSC = d3.arc()
+    .innerRadius(0)
+    .outerRadius(radiusSC);
+
+// Create tooltip container
+const tooltipSC = d3.select("#songsComparison")
+.append("div")
+.style("position", "absolute")
+.style("background", "#fff")
+.style("color", "#333")
+.style("padding", "5px 10px")
+.style("border-radius", "5px")
+.style("box-shadow", "0 2px 5px rgba(0,0,0,0.3)")
+.style("font-size", "12px")
+.style("pointer-events", "none")
+.style("opacity", 0); // Initially hidden
+
+// Draw slices
+svgSC.selectAll("path")
+  .data(pieSC(dataSC))
+  .enter()
+  .append("path")
+  .attr("d", arcSC)
+  .attr("fill", d => colorSC(d.data.category)) // Use the color scale
+  .attr("stroke", "black") // Add white stroke for better contrast
+  .style("stroke-width", "0px")
+  .on("mouseover", function (event, d) {
+    tooltipSC
+      .style("opacity", 1) // Make tooltip visible
+      .html(`<strong>${d.data.category}</strong><br>Songs: ${d.data.count}`) // Display category and count
+      .style("left", `${event.pageX + 10}px`) // Position tooltip
+      .style("top", `${event.pageY - 20}px`);
+    d3.select(this).attr("fill", d3.color(colorSC(d.data.category)).darker(0.5)); // Highlight slice
+  })
+  .on("mousemove", function (event) {
+    tooltipSC
+      .style("left", `${event.pageX + 10}px`)
+      .style("top", `${event.pageY - 20}px`);
+  })
+  .on("mouseout", function (event, d) {
+    tooltipSC.style("opacity", 0); // Hide tooltip
+    d3.select(this).attr("fill", colorSC(d.data.category)); // Reset slice color
+  });
+
+
+// Add labels
+svgSC.selectAll("text")
+    .data(pieSC(dataSC))
+    .enter()
+    .append("text")
+    .text(d => d.data.category)
+    .attr("transform", d => `translate(${arcSC.centroid(d)})`)
+    .style("text-anchor", "middle")
+    .style("font-size", "14px")
+    .style("fill", "#fff");
+
+
 // ---------Samples per song----------
 
 // Data
@@ -66,65 +157,6 @@ svgSPS.append("text")
   .attr("text-anchor", "middle")
   .text("Songs");
 
-// ---------Songs Comparison----------
-
-// Data
-const dataSC = [
-    { category: "With Samples", count: 10 },
-    { category: "Without Samples", count: 4 }
-];
-
-// Dimensions
-const widthSC = 800;
-const heightSC = 800;
-const marginSC = 50;
-
-const radiusSC = Math.min(widthSC, heightSC) / 2 - marginSC;
-
-// Append SVG
-const svgSC = d3
-    .select("#songsComparison")
-    .append("svg")
-    .attr("width", widthSC)
-    .attr("height", heightSC)
-    .append("g")
-    .attr("transform", `translate(${widthSC / 2}, ${heightSC / 2})`);
-
-// Color scale
-const colorSC = d3
-    .scaleOrdinal()
-    .domain(["With Samples", "Without Samples"])
-    .range(["rgb(68, 31, 255)", "rgb(255, 77, 0)"]);
-
-// Create pie and arc
-const pieSC = d3.pie()
-    .value(d => d.count);
-
-const arcSC = d3.arc()
-    .innerRadius(0)
-    .outerRadius(radiusSC);
-
-// Draw slices
-svgSC.selectAll("path")
-  .data(pieSC(dataSC))
-  .enter()
-  .append("path")
-  .attr("d", arcSC)
-  .attr("fill", d => colorSC(d.data.category)) // Use the color scale
-  .attr("stroke", "black") // Add white stroke for better contrast
-  .style("stroke-width", "0px")
-
-
-// Add labels
-svgSC.selectAll("text")
-    .data(pieSC(dataSC))
-    .enter()
-    .append("text")
-    .text(d => d.data.category)
-    .attr("transform", d => `translate(${arcSC.centroid(d)})`)
-    .style("text-anchor", "middle")
-    .style("font-size", "14px")
-    .style("fill", "#fff");
 
 // ---------Sample Dates----------
 
