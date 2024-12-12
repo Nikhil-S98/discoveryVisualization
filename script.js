@@ -361,8 +361,8 @@ const coverArtMap = {
 };
 
 // dimensions
-const widthFTF = 600;
-const heightFTF = 600;
+const widthFTF = 700;
+const heightFTF = 700;
 const radiusFTF = Math.min(widthFTF, heightFTF) / 2 - 50;
 
 // append SVG
@@ -388,7 +388,7 @@ svgFTF
     .append("text")
     .attr("text-anchor", "middle")
     .attr("y", 5)
-    .style("font-size", "14px")
+    .style("font-size", "12px")
     .style("fill", "white")
     .text("Face to Face");
 
@@ -408,6 +408,10 @@ const tooltip = d3.select("#faceToFaceChart")
 // draw nodes and links
 const angleStep = (2 * Math.PI) / faceToFaceData.length;
 
+// Create group for links and nodes
+const linkGroup = svgFTF.append("g");
+const nodeGroup = svgFTF.append("g");
+
 // Draw nodes and links
 faceToFaceData.forEach((d, i) => {
     const angle = i * angleStep;
@@ -415,29 +419,30 @@ faceToFaceData.forEach((d, i) => {
     const y = Math.sin(angle) * radiusFTF;
 
     // Draw lines from center to sample nodes
-    svgFTF
+    linkGroup
         .append("line")
         .attr("x1", 0)
         .attr("y1", 0)
         .attr("x2", x)
         .attr("y2", y)
-        .attr("stroke", "#ccc")
-        .attr("stroke-width", 1);
+        .attr("stroke", "#fff") // Set lines to white
+        .attr("stroke-width", 0.5);
 
     // Draw sample nodes
-    svgFTF
+    nodeGroup
         .append("circle")
         .attr("cx", x)
         .attr("cy", y)
         .attr("r", 10)
-        .attr("fill", colorFTF(d.sample))
+        .attr("fill", "rgb(102, 0, 255)") // Set nodes to purple
         .on("mouseover", function (event) {
             tooltip
                 .style("opacity", 1)
-                .html(`${d.sample}<br><span style="font-size:10px;">Year: ${d.year}</span>`)
+                .html(`<strong>${d.sample}</strong><br><span style="font-size:10px;">Year: ${d.year}</span>`)
                 .style("left", `${event.pageX + 10}px`)
                 .style("top", `${event.pageY - 20}px`);
-            d3.select(this).attr("stroke", "#000").attr("stroke-width", 2); // Highlight node
+            d3.select(this)
+                .attr("fill", "rgb(255, 0, 0)") // Highlight node in bright red
 
             // Update cover art
             const coverArtUrl = coverArtMap[d.sample];
@@ -454,9 +459,26 @@ faceToFaceData.forEach((d, i) => {
         })
         .on("mouseout", function () {
             tooltip.style("opacity", 0); // Hide tooltip
-            d3.select(this).attr("stroke", "none"); // Remove highlight
+            d3.select(this)
+                .attr("fill", "rgb(102, 0, 255)") // Reset node color to purple
+                .attr("stroke", "none"); // Remove highlight
 
             // Hide cover art
             d3.select("#sampleArtImage").style("display", "none");
         });
 });
+
+// Add central node and label in a separate group (on top of everything)
+const centralGroup = svgFTF.append("g");
+centralGroup
+    .append("circle")
+    .attr("r", 80)
+    .attr("fill", "rgb(102, 0, 255)");
+
+centralGroup
+    .append("text")
+    .attr("text-anchor", "middle")
+    .attr("y", 5)
+    .style("font-size", "22px")
+    .style("fill", "white")
+    .text("Face to Face");
