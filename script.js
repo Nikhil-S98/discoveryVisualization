@@ -88,76 +88,6 @@ svgSC.selectAll("text")
     .style("font-size", "14px")
     .style("fill", "#fff");
 
-
-// ---------Samples per song----------
-
-// Data
-const songTitles = ["One More Time", "Aerodynamic", "Digital Love", "Harder, Better, Faster, Stronger", "Crescendolls", "Nightvision", "Superheroes", "High Life", "Something About Us", "Voyager", "Veridis Quo", "Short Circuit", "Face to Face", "Too Long"];
-const sampleCounts = [1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 20, 3];
-
-// Chart dimensions; SPS for samplesPerSong
-const widthSPS = 1300;
-const heightSPS = 500;
-const marginSPS = { top: 20, right: 20, bottom: 50, left: 170 };
-
-// Create an SVG container
-const svgSPS = d3
-  .select("#samplesPerSong")
-  .append("svg")
-  .attr("width", widthSPS + marginSPS.left + marginSPS.right)
-  .attr("height", heightSPS + marginSPS.top + marginSPS.bottom)
-  .append("g")
-  .attr("transform", "translate(" + marginSPS.left + "," + marginSPS.top + ")")
-
-// Create scales
-const xScale = d3.scaleLinear()
-  .domain([0, d3.max(sampleCounts)])
-  .nice()
-  .range([0, widthSPS]);
-
-const yScale = d3.scaleBand()
-  .domain(songTitles)
-  .range([0, heightSPS])
-  .padding(0.1);
-
-// Draw bars
-svgSPS.selectAll(".bar")
-  .data(sampleCounts)
-  .enter()
-  .append("rect")
-  .attr("class", "bar")
-  .attr("x", 0) // Bars start at x=0
-  .attr("y", (d, i) => yScale(songTitles[i]))
-  .attr("width", d => xScale(d))
-  .attr("height", yScale.bandwidth())
-  .attr("fill", "#3498db");
-
-// Add x-axis
-svgSPS.append("g")
-  .attr("transform", `translate(0, ${heightSPS})`)
-  .call(d3.axisBottom(xScale));
-
-// Add y-axis
-svgSPS.append("g")
-  .call(d3.axisLeft(yScale))
-  .selectAll("text")
-  .style("text-anchor", "end");
-
-// Add labels
-svgSPS.append("text")
-  .attr("x", widthSPS / 2)
-  .attr("y", heightSPS + marginSPS.bottom - 10)
-  .attr("text-anchor", "middle")
-  .text("Number of Samples");
-
-svgSPS.append("text")
-  .attr("x", -heightSPS / 2)
-  .attr("y", -marginSPS.left + 50)
-  .attr("transform", "rotate(-90)")
-  .attr("text-anchor", "middle")
-  .text("Songs");
-
-
 // ---------Sample Dates----------
 
 //Data
@@ -207,6 +137,19 @@ const svgSD = d3.select('#sampleDates')
     .append("g")
     .attr("transform", `translate(${marginSD.left}, ${marginSD.top})`);
 
+// Tooltip Container
+const tooltipSD = d3.select("#sampleDates")
+    .append("div")
+    .style("position", "absolute")
+    .style("background", "#fff")
+    .style("color", "#333")
+    .style("padding", "5px 10px")
+    .style("border-radius", "5px")
+    .style("box-shadow", "0 2px 5px rgba(0,0,0,0.3)")
+    .style("font-size", "12px")
+    .style("pointer-events", "none")
+    .style("opacity", 0); // Initially hidden
+
 // Scales
 const xScaleSD = d3.scaleLinear()
     .domain(d3.extent(scatterData, d => d.year))
@@ -233,7 +176,7 @@ svgSD.append("g")
     .selectAll("text")
     .style("font-size", "10px");
 
-// add points
+// Add points with tooltip interactivity
 svgSD.selectAll("circle")
     .data(scatterData)
     .enter()
@@ -241,8 +184,26 @@ svgSD.selectAll("circle")
     .attr("cx", d => xScaleSD(d.year)) // Position based on year
     .attr("cy", d => yScaleSD(d.song) + yScaleSD.bandwidth() / 2) // Position based on song
     .attr("r", 6) // Point size
-    .attr("fill", "#3498db");
+    .attr("fill", "rgb(78, 0, 228)") // Correct RGB value syntax
+    .on("mouseover", function (event, d) {
+        tooltipSD
+            .style("opacity", 1) // Show tooltip
+            .html(`<strong>${d.song}</strong><br>Year: ${d.year}`)
+            .style("left", `${event.pageX + 10}px`) // Adjust position
+            .style("top", `${event.pageY - 20}px`);
+        d3.select(this).attr("fill", "rgb(200, 0, 255)"); // Highlight color on hover
+    })
+    .on("mousemove", function (event) {
+        tooltipSD
+            .style("left", `${event.pageX + 10}px`)
+            .style("top", `${event.pageY - 20}px`);
+    })
+    .on("mouseout", function (event, d) {
+        tooltipSD.style("opacity", 0); // Hide tooltip
+        d3.select(this).attr("fill", "rgb(78, 0, 228)"); // Reset to original color
+    });
 
+// Add y-axis label
 svgSD.append("text")
     .attr("x", -heightSD / 2)
     .attr("y", -marginSD.left + 20)
@@ -250,6 +211,105 @@ svgSD.append("text")
     .attr("text-anchor", "middle")
     .style("font-size", "14px")
     .text("Sampled Song");
+
+// ---------Samples per song----------
+
+// Data
+const songTitles = ["One More Time", "Aerodynamic", "Digital Love", "Harder, Better, Faster, Stronger", "Crescendolls", "Nightvision", "Superheroes", "High Life", "Something About Us", "Voyager", "Veridis Quo", "Short Circuit", "Face to Face", "Too Long"];
+const sampleCounts = [1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 20, 3];
+
+// Chart dimensions; SPS for samplesPerSong
+const widthSPS = 1000;
+const heightSPS = 500;
+const marginSPS = { top: 20, right: 20, bottom: 70, left: 180 };
+
+// Create an SVG container
+const svgSPS = d3
+  .select("#samplesPerSong")
+  .append("svg")
+  .attr("width", widthSPS + marginSPS.left + marginSPS.right)
+  .attr("height", heightSPS + marginSPS.top + marginSPS.bottom)
+  .append("g")
+  .attr("transform", "translate(" + marginSPS.left + "," + marginSPS.top + ")")
+
+// Create scales
+const xScale = d3.scaleLinear()
+  .domain([0, d3.max(sampleCounts)])
+  .nice()
+  .range([0, widthSPS]);
+
+const yScale = d3.scaleBand()
+  .domain(songTitles)
+  .range([0, heightSPS])
+  .padding(0.1);
+
+// Create tooltip container
+const tooltipSPS = d3.select("#samplesPerSong")
+  .append("div")
+  .style("position", "absolute")
+  .style("background", "#fff")
+  .style("color", "#333")
+  .style("padding", "5px 10px")
+  .style("border-radius", "5px")
+  .style("box-shadow", "0 2px 5px rgba(0,0,0,0.3)")
+  .style("font-size", "12px")
+  .style("pointer-events", "none")
+  .style("opacity", 0); // Initially hidden
+
+// Draw bars with tooltip interactivity
+svgSPS.selectAll(".bar")
+  .data(sampleCounts)
+  .enter()
+  .append("rect")
+  .attr("class", "bar")
+  .attr("x", 0) // Bars start at x=0
+  .attr("y", (d, i) => yScale(songTitles[i])) // Correctly associate bar position with song title
+  .attr("width", d => xScale(d))
+  .attr("height", yScale.bandwidth())
+  .attr("fill", "rgb(102, 0, 255)") // Original bar color
+  .on("mouseover", function (event, d) {
+    tooltipSPS
+      .style("opacity", 1) // Show tooltip
+      .html(`<strong>Samples:</strong> ${d}`) // Display only the number of samples
+      .style("left", `${event.pageX + 10}px`)
+      .style("top", `${event.pageY - 20}px`);
+    d3.select(this).attr("fill", "rgb(216, 255, 0)"); // Highlight bar with a distinct yellow
+  })
+  .on("mousemove", function (event) {
+    tooltipSPS
+      .style("left", `${event.pageX + 10}px`)
+      .style("top", `${event.pageY - 20}px`);
+  })
+  .on("mouseout", function () {
+    tooltipSPS.style("opacity", 0); // Hide tooltip
+    d3.select(this).attr("fill", "rgb(102, 0, 255)"); // Reset bar color to original
+  });
+
+// Add x-axis
+svgSPS.append("g")
+  .attr("transform", `translate(0, ${heightSPS})`)
+  .call(d3.axisBottom(xScale));
+
+// Add y-axis
+svgSPS.append("g")
+  .call(d3.axisLeft(yScale))
+  .selectAll("text")
+  .style("text-anchor", "end")
+  .style("font-size", "12px");
+
+// Add labels
+svgSPS.append("text")
+  .attr("x", widthSPS / 2)
+  .attr("y", heightSPS + marginSPS.bottom - 10)
+  .attr("text-anchor", "middle")
+  .text("Number of Samples");
+
+svgSPS.append("text")
+  .attr("x", -heightSPS / 2)
+  .attr("y", -marginSPS.left + 50)
+  .attr("transform", "rotate(-90)")
+  .attr("text-anchor", "middle")
+  .text("Songs");
 
 // ---------Face to Face Chart----------
   
@@ -276,6 +336,29 @@ const faceToFaceData = [
     { sample: "Firefall - Body And Soul", year: 1982 },
     { sample: "Dave Mason - All Along The Watchtower", year: 1974 }
 ];
+
+const coverArtMap = {
+    "Electric Light Orchestra - Evil Woman": "./assets/coverArts/Evil_Woman_-_Electric_Light_Orchestra.jpg",
+    "Loggins and Jim Messina - House At Pooh Corner": "./assets/coverArts/Nitty_Gritty_House_at_Pooh_single.png",
+    "The Alan Parsons Project - Old And Wise": "./assets/coverArts/the-alan-parsons-project-old-and-wise.jpg",
+    "Electric Light Orchestra - Can't Get It Out Of My Head": "./assets/coverArts/electric-light-orchestra-cant-get-it-out-of-my-head.jpg",
+    "The Alan Parsons Project - Silence And I": "./assets/coverArts/the-alan-parsons-project-slience-and-i.jpg",
+    "Poco - Faith In The Families": "./assets/coverArts/poco-faith-in-the-families.jpeg",
+    "Rockie Robbins - Nothing Like Love": "./assets/coverArts/Rockie-Robbins-Nothing-Like-Love.jpg",
+    "Dan Fogelberg and Tim Weisberg - Twins Theme": "./assets/coverArts/Dan-Fogelberg-and-Tim-Weisberg-Twins-theme.jpg",
+    "Deborah Washington - The Letter": "./assets/coverArts/Deborah-Washington-The-Letter.jpg",
+    "Dan Fogelberg and Tim Weisberg - Tell Me To My Face": "./assets/coverArts/Dan-Fogelberg-and-Tim-Weisberg-tell-me-to-my-face.jpg",
+    "Herbie Mann - Jisco Dazz": "./assets/coverArts/herbie-mann-jisco-dazz.jpg",
+    "The Doobie Brothers - South City Midnight Lady": "./assets/coverArts/The-Doobie-Brothers-South-City-Midnight-Lady.jpg",
+    "Boz Scaggs - You Got Some Imagination": "./assets/coverArts/Boz-Scaggs-You-Got-Some-Imagination.jpeg",
+    "Carrie Lucas - Sometimes A Love Goes Wrong": "./assets/coverArts/Carrie-Lucas-Sometimes-A-Love-Goes-Wrong.jpeg",
+    "Loggins and Jim Messina - Be Free": "./assets/coverArts/Loggins-and-Jim-Messina-Be-Free.jpg",
+    "Dan Fogelberg and Tim Weisberg - Lahaina Luna": "./assets/coverArts/Dan-Fogelberg-and-Tim-Weisberg-lahaina-luna.jpg",
+    "The Doobie Brothers - It Keeps You Runnin'": "./assets/coverArts/the-doobie-brothers-it-keeps-you-runnin.jpeg",
+    "Steppenwolf - Everbody's Next One": "./assets/coverArts/Steppenwolf-Everbodys-Next-One.jpeg",
+    "Firefall - Body And Soul": "./assets/coverArts/Firefall-Body-And-Soul.jpeg",
+    "Dave Mason - All Along The Watchtower": "./assets/coverArts/Dave-Mason-All-Along-The-Watchtower.jpeg"
+};
 
 // dimensions
 const widthFTF = 600;
@@ -325,12 +408,13 @@ const tooltip = d3.select("#faceToFaceChart")
 // draw nodes and links
 const angleStep = (2 * Math.PI) / faceToFaceData.length;
 
+// Draw nodes and links
 faceToFaceData.forEach((d, i) => {
     const angle = i * angleStep;
     const x = Math.cos(angle) * radiusFTF;
     const y = Math.sin(angle) * radiusFTF;
 
-    // draw lines from center to sample nodes
+    // Draw lines from center to sample nodes
     svgFTF
         .append("line")
         .attr("x1", 0)
@@ -340,7 +424,7 @@ faceToFaceData.forEach((d, i) => {
         .attr("stroke", "#ccc")
         .attr("stroke-width", 1);
 
-    // draw sample nodes
+    // Draw sample nodes
     svgFTF
         .append("circle")
         .attr("cx", x)
@@ -354,6 +438,14 @@ faceToFaceData.forEach((d, i) => {
                 .style("left", `${event.pageX + 10}px`)
                 .style("top", `${event.pageY - 20}px`);
             d3.select(this).attr("stroke", "#000").attr("stroke-width", 2); // Highlight node
+
+            // Update cover art
+            const coverArtUrl = coverArtMap[d.sample];
+            if (coverArtUrl) {
+                d3.select("#sampleArtImage")
+                    .attr("src", coverArtUrl)
+                    .style("display", "block");
+            }
         })
         .on("mousemove", function (event) {
             tooltip
@@ -363,5 +455,8 @@ faceToFaceData.forEach((d, i) => {
         .on("mouseout", function () {
             tooltip.style("opacity", 0); // Hide tooltip
             d3.select(this).attr("stroke", "none"); // Remove highlight
+
+            // Hide cover art
+            d3.select("#sampleArtImage").style("display", "none");
         });
 });
